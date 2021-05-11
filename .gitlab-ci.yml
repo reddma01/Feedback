@@ -1,0 +1,35 @@
+image: maven:latest
+
+stages:
+  - build
+  - test
+
+
+cache:
+  paths:
+    - .m2/repository/
+    - $CI_PROJECT_DIR/target/
+
+build:
+  stage: build
+  tags:
+    - oldboca
+  script: mvn compile
+
+regression_test:
+  services:
+    -  selenium/standalone-chrome
+
+  stage: test
+  script:
+    - mvn clean test -D SysEnv=$docker
+  tags:
+    - oldboca
+  artifacts:
+    when: always
+    untracked: true
+    name: $CI_JOB_NAME
+    paths:
+      - $CI_PROJECT_DIR/target/reports/
+    expire_in: 1 week
+
